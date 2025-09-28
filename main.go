@@ -12,7 +12,7 @@ import (
 func main() {
 	app := fiber.New()
 
-	dbConfigs.ConnectMongoDB("mongodb+srv://admin:W6ptbj7HPS3RJ4cU@cluster0.tgypip5.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+	dbConfigs.ConnectMongoDB()
 
 	apiHandlers.SetupRoutes(app)
 

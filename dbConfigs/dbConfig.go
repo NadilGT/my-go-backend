@@ -10,11 +10,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var MongoClient *mongo.Client
-var UserCollection *mongo.Collection
-
-func ConnectMongoDB(uri string) *mongo.Client {
-	client, err := mongo.NewClient(options.Client().ApplyURI(uri))
+func ConnectMongoDB() *mongo.Client {
+	client, err := mongo.NewClient(options.Client().ApplyURI(DATABASE_URL))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -25,12 +22,10 @@ func ConnectMongoDB(uri string) *mongo.Client {
 	}
 
 	fmt.Println("Connected to MongoDB")
-	MongoClient = client
+	CLIENT = client
 
-	db := MongoClient.Database("Evolza")
-	fmt.Println(db.Name())
-
-	UserCollection = db.Collection("employees")
+	DATABASE = client.Database(DATABASE_NAME)
+	fmt.Println(DATABASE.Name())
 
 	return client
 }

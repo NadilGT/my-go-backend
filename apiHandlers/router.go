@@ -12,10 +12,7 @@ func SetupRoutes(app *fiber.App) {
 		return c.SendString("Hello from Fiber on Render!")
 	})
 
-	app.Post("/employee", api.CreateUser)
-	app.Get("/employee", api.FindAllEmployees)
-	app.Put("/updateEmployee", api.UpdateEmployee)
-	app.Get("/employee", api.FindEmployeeByID)
-	app.Delete("/employee", api.SoftDeleteEmployeeById)
-	app.Delete("/employee/hardDelete", api.HardDeleteEmployeeById)
+	app.Post("/CreateCategory", api.CreateCategoryApi)
+	app.Get("/api/categories", api.FindAllCategoriesApi)
+
 }
