@@ -12,9 +12,11 @@ func SetupRoutes(app *fiber.App) {
 		return c.SendString("Hello from Fiber on Render!")
 	})
 
-	app.Post("/api/createCategory", api.CreateCategoryApi)
-	app.Get("/api/categories", api.FindAllCategoriesApi)
-	app.Post("/api/brands", api.CreateBrand)
-	app.Get("/api/brands", api.FindAllBrands)
+	app.Post("/CreateCategory", api.CreateCategoryApi)
+	app.Get("/FindAllCategory", api.FindAllCategoriesApi)
+	app.Post("/CreateBrands", api.CreateBrand)
+	app.Get("/FindAllBrands", api.FindAllBrands)
+	app.Post("/CreateSubCategory", api.CreateSubCategory)
+	app.Get("/FindAllSubCategory", api.FindAllSubCategory)
 
 }
