@@ -20,5 +20,7 @@ func SetupRoutes(app *fiber.App) {
 	app.Get("/FindAllSubCategory", api.FindAllSubCategory)
 	app.Post("/CreateProduct", api.CreateProduct)
 	app.Get("/FindAllProducts", api.FindAllProducts)
+	app.Post("/CreateSupplier", api.CreateSupplier)
+	app.Get("/FindAllSuppliers", api.FindAllSuppliers)
 
 }
