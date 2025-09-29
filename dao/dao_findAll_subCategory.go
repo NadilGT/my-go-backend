@@ -6,7 +6,7 @@ import (
 	"employee-crud/dto"
 )
 
-func DB_FindAllSubCategory() ([]dto.Brand, error) {
+func DB_FindAllSubCategory() ([]dto.SubCategory, error) {
 	collection := dbConfigs.DATABASE.Collection("SubCategories")
 
 	ctx := context.Background()
@@ -16,10 +16,10 @@ func DB_FindAllSubCategory() ([]dto.Brand, error) {
 	}
 	defer cursor.Close(ctx)
 
-	var brands []dto.Brand
-	if err := cursor.All(ctx, &brands); err != nil {
+	var subCategory []dto.SubCategory
+	if err := cursor.All(ctx, &subCategory); err != nil {
 		return nil, err
 	}
 
-	return brands, nil
+	return subCategory, nil
 }
