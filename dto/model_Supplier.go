@@ -10,6 +10,7 @@ type Supplier struct {
 	Contact    string    `bson:"contact" json:"contact"`
 	Email      string    `bson:"email" json:"email"`
 	Address    string    `bson:"address" json:"address"`
+	Deleted    bool      `json:"deleted" bson:"deleted"`
 	CreatedAt  time.Time `bson:"created_at" json:"created_at"`
 	UpdatedAt  time.Time `bson:"updated_at" json:"updated_at"`
 }
