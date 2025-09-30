@@ -28,7 +28,7 @@ func CreateSupplier(c *fiber.Ctx) error {
 	inputObj.CreatedAt = now
 	inputObj.UpdatedAt = now
 
-	if err := functions.UniqueCheck(inputObj, "Products", []string{"ProductId"}); err != nil {
+	if err := functions.UniqueCheck(inputObj, "Suppliers", []string{"SupplierId"}); err != nil {
 		return utils.SendErrorResponse(c, fiber.StatusBadRequest, err.Error())
 	}
 

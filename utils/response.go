@@ -22,3 +22,14 @@ func SendSuccessResponse(c *fiber.Ctx) error {
 	}
 	return c.Status(fiber.StatusOK).JSON(response)
 }
+
+func NewCustomError(c *fiber.Ctx, status int, message string, err error) error {
+	resp := fiber.Map{
+		"status":  status,
+		"message": message,
+	}
+	if err != nil {
+		resp["error"] = err.Error()
+	}
+	return c.Status(status).JSON(resp)
+}
