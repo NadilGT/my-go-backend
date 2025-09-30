@@ -14,6 +14,7 @@ func SetupRoutes(app *fiber.App) {
 
 	app.Post("/CreateCategory", api.CreateCategoryApi)
 	app.Get("/FindAllCategory", api.FindAllCategoriesApi)
+	app.Delete("/DeleteCategory", api.DeleteCategoryApi)
 	app.Post("/CreateBrands", api.CreateBrand)
 	app.Get("/FindAllBrands", api.FindAllBrands)
 	app.Post("/CreateSubCategory", api.CreateSubCategory)
