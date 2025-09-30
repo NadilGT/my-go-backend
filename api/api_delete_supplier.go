@@ -15,7 +15,7 @@ func DeleteSupplierApi(c *fiber.Ctx) error {
 	}
 
 	if err := dao.DB_DeleteSupplierByID(id); err != nil {
-		return utils.NewCustomError(c, fiber.StatusBadRequest, "Can't find a supplier from that Id", nil)
+		return utils.NewCustomError(c, fiber.StatusNotFound, err.Error(), nil)
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
