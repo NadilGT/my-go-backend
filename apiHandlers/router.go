@@ -22,5 +22,6 @@ func SetupRoutes(app *fiber.App) {
 	app.Get("/FindAllProducts", api.FindAllProducts)
 	app.Post("/CreateSupplier", api.CreateSupplier)
 	app.Get("/FindAllSuppliers", api.FindAllSuppliers)
+	app.Delete("/DeleteSupplierById", api.DeleteSupplierApi)
 
 }
