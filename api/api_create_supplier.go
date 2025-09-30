@@ -12,18 +12,18 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func CreateProduct(c *fiber.Ctx) error {
-	inputObj := dto.Product{}
+func CreateSupplier(c *fiber.Ctx) error {
+	inputObj := dto.Supplier{}
 
 	if err := c.BodyParser(&inputObj); err != nil {
 		return utils.SendErrorResponse(c, fiber.StatusBadRequest, err.Error())
 	}
 	ctx := context.Background()
-	id, err := dao.GenerateId(ctx, "Products", "PRD")
+	id, err := dao.GenerateId(ctx, "Suppliers", "SUPl")
 	if err != nil {
 		return utils.SendErrorResponse(c, fiber.StatusInternalServerError, err.Error())
 	}
-	inputObj.ProductId = id
+	inputObj.SupplierId = id
 	now := time.Now().UTC()
 	inputObj.CreatedAt = now
 	inputObj.UpdatedAt = now
@@ -36,7 +36,7 @@ func CreateProduct(c *fiber.Ctx) error {
 	if validationErr := validate.Struct(inputObj); validationErr != nil {
 		return utils.SendErrorResponse(c, fiber.StatusBadRequest, validationErr.Error())
 	}
-	err = dao.DB_CreateProduct(&inputObj)
+	err = dao.DB_CreateSupplier(&inputObj)
 	if err != nil {
 		return utils.SendErrorResponse(c, fiber.StatusInternalServerError, err.Error())
 	}

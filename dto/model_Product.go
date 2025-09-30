@@ -5,7 +5,7 @@ import (
 )
 
 type Product struct {
-	ProductID     string     `bson:"productId" json:"productId"`
+	ProductId     string     `bson:"productId" json:"productId"`
 	Name          string     `bson:"name" json:"name"`
 	Barcode       string     `bson:"barcode" json:"barcode"`
 	CategoryID    string     `bson:"categoryId" json:"categoryId"`
