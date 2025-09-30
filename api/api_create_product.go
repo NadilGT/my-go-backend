@@ -23,7 +23,7 @@ func CreateProduct(c *fiber.Ctx) error {
 	if err != nil {
 		return utils.SendErrorResponse(c, fiber.StatusInternalServerError, err.Error())
 	}
-	inputObj.ProductID = id
+	inputObj.ProductId = id
 	now := time.Now().UTC()
 	inputObj.CreatedAt = now
 	inputObj.UpdatedAt = now
