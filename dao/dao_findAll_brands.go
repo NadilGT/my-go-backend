@@ -4,13 +4,17 @@ import (
 	"context"
 	"employee-crud/dbConfigs"
 	"employee-crud/dto"
+
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func DB_FindAllBrands() ([]dto.Brand, error) {
 	collection := dbConfigs.DATABASE.Collection("Brands")
-
 	ctx := context.Background()
-	cursor, err := collection.Find(ctx, map[string]interface{}{})
+
+	filter := bson.M{"deleted": false}
+
+	cursor, err := collection.Find(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
