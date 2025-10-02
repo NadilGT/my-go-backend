@@ -8,14 +8,14 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func GetProductsByCategoryApi(c *fiber.Ctx) error {
-	categoryId := c.Query("categoryId")
+func GetProductsByBrandApi(c *fiber.Ctx) error {
+	brandId := c.Query("brandId")
 
-	if categoryId == "" {
-		return utils.NewCustomError(c, fiber.StatusBadRequest, "CategoryId is required", nil)
+	if brandId == "" {
+		return utils.NewCustomError(c, fiber.StatusBadRequest, "brandId is required", nil)
 	}
 
-	products, err := dao.DB_FindProductsByCategory(categoryId)
+	products, err := dao.DB_FindProductsByBrand(brandId)
 	if err != nil {
 		return utils.NewCustomError(c, fiber.StatusInternalServerError, err.Error(), nil)
 	}
