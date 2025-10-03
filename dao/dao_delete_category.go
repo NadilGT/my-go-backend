@@ -6,14 +6,17 @@ import (
 	"errors"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func DB_DeletecategoryByID(supplierId string) error {
+func DB_DeletecategoryByID(categoryId string) error {
+	ctx := context.Background()
 
-	collection := dbConfigs.DATABASE.Collection("Categories")
+	categories := dbConfigs.DATABASE.Collection("Categories")
+	products := dbConfigs.DATABASE.Collection("Products")
 
 	filter := bson.M{
-		"categoryId": supplierId,
+		"categoryId": categoryId,
 		"deleted":    false,
 	}
 
@@ -21,13 +24,26 @@ func DB_DeletecategoryByID(supplierId string) error {
 		"$set": bson.M{"deleted": true},
 	}
 
-	result, err := collection.UpdateOne(context.Background(), filter, update)
+	result, err := categories.UpdateOne(ctx, filter, update)
 	if err != nil {
 		return err
 	}
-
 	if result.MatchedCount == 0 {
-		return errors.New("Specified Id not found or already deleted!")
+		return errors.New("Specified category not found or already deleted")
+	}
+
+	productFilter := bson.M{
+		"categoryId": categoryId,
+		"deleted":    false,
+	}
+
+	productUpdate := bson.M{
+		"$set": bson.M{"deleted": true},
+	}
+
+	_, err = products.UpdateMany(ctx, productFilter, productUpdate)
+	if err != nil && err != mongo.ErrNoDocuments {
+		return err
 	}
 
 	return nil
