@@ -35,4 +35,6 @@ func SetupRoutes(app *fiber.App) {
 	app.Get("/FindAllCategoriesSearchApi", api.FindAllCategoriesSearchApi)
 	app.Post("/RestoreProduct", api.RestoreProductApi)
 	app.Get("/FindProductByProductId", api.FindProductByID)
+	app.Get("/FindBrandsBySearch", api.FindAllBrandsSearch)
+	app.Get("/FindAllSuppliersSearch", api.FindAllSuppliersSearch)
 }
