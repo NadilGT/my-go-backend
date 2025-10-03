@@ -10,7 +10,7 @@ type Product struct {
 	Barcode       string     `bson:"barcode" json:"barcode"`
 	CategoryID    string     `bson:"categoryId" json:"categoryId"`
 	BrandID       string     `bson:"brandId" json:"brandId"`
-	SubCategoryID string     `bson:"subcategoryId" json:"subcategoryId"`
+	SubCategoryID string     `bson:"subCategoryId" json:"subCategoryId"`
 	CostPrice     float64    `bson:"costPrice" json:"costPrice"`
 	SellingPrice  float64    `bson:"sellingPrice" json:"sellingPrice"`
 	StockQty      int        `bson:"stockQty" json:"stockQty"`
