@@ -4,9 +4,9 @@ import (
 	"context"
 	"employee-crud/dbConfigs"
 	"employee-crud/dto"
+	"fmt"
 
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func DB_UpdateProduct(ctx context.Context, product *dto.Product) error {
@@ -30,6 +30,14 @@ func DB_UpdateProduct(ctx context.Context, product *dto.Product) error {
 		},
 	}
 
-	_, err := collection.UpdateOne(ctx, filter, update, options.Update().SetUpsert(false))
-	return err
+	result, err := collection.UpdateOne(ctx, filter, update)
+	if err != nil {
+		return err
+	}
+
+	if result.MatchedCount == 0 {
+		return fmt.Errorf("categoryId %s not found", product.ProductId)
+	}
+
+	return nil
 }
