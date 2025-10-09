@@ -12,6 +12,11 @@ func SetupRoutes(app *fiber.App) {
 		return c.SendString("Hello from Fiber on Render!")
 	})
 
+	// Add OPTIONS handler for preflight requests
+	app.Options("/*", func(c *fiber.Ctx) error {
+		return c.SendStatus(204)
+	})
+
 	app.Post("/CreateCategory", api.CreateCategoryApi)
 	app.Get("/FindAllCategory", api.FindAllCategoriesApi)
 	app.Delete("/DeleteCategory", api.DeleteCategoryApi)
