@@ -4,6 +4,7 @@ import (
 	"context"
 	"employee-crud/dbConfigs"
 	"employee-crud/dto"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -78,7 +79,16 @@ func DB_FindAllProductsCursorPaginated(limit int, cursor string) ([]dto.Product,
 	// If cursor is provided, add it to filter for cursor-based pagination
 	if cursor != "" {
 		// Parse cursor (created_at timestamp) and add to filter
-		filter["created_at"] = bson.M{"$lt": cursor}
+		cursorTime, err := time.Parse("2006-01-02T15:04:05.000Z", cursor)
+		if err != nil {
+			// If parsing fails, try RFC3339 format
+			cursorTime, err = time.Parse(time.RFC3339, cursor)
+			if err != nil {
+				// If still fails, return error
+				return nil, "", false, err
+			}
+		}
+		filter["created_at"] = bson.M{"$lt": cursorTime}
 	}
 
 	// Set up find options
