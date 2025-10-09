@@ -13,10 +13,12 @@ import (
 func main() {
 	app := fiber.New()
 
+	// Configure CORS to allow your specific domains
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "http://localhost:8080, http://localhost:3000, https://pos-frontend-tan.vercel.app",
-		AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS",
-		AllowHeaders:     "Origin, Content-Type, Accept, Authorization, X-Requested-With",
+		AllowOrigins:     "http://localhost:3000,http://localhost:8080,https://pos-frontend-tan.vercel.app",
+		AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS,HEAD,PATCH",
+		AllowHeaders:     "Origin,Content-Type,Accept,Authorization,X-Requested-With,Access-Control-Request-Method,Access-Control-Request-Headers",
+		ExposeHeaders:    "Content-Length,Access-Control-Allow-Origin,Access-Control-Allow-Headers,Cache-Control,Content-Language,Content-Type",
 		AllowCredentials: true,
 	}))
 
