@@ -7,6 +7,14 @@ type Response struct {
 	Error     string `json:"error,omitempty"`
 }
 
+type PaginatedResponse struct {
+	Data       interface{} `json:"data"`
+	Page       int         `json:"page"`
+	PerPage    int         `json:"per_page"`
+	Total      int64       `json:"total"`
+	TotalPages int         `json:"total_pages"`
+}
+
 func SendErrorResponse(c *fiber.Ctx, statusCode int, errorMessage string) error {
 	response := Response{
 		Operation: "Failed",
