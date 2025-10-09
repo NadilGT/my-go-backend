@@ -3,24 +3,17 @@ package api
 import (
 	"employee-crud/dao"
 	"employee-crud/utils"
-	"math"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 func FindAllProducts(c *fiber.Ctx) error {
-	// Get pagination parameters
-	pageStr := c.Query("page", "1")
+	// Get cursor and per_page parameters
+	cursor := c.Query("cursor", "")
 	perPageStr := c.Query("per_page", "15")
 
-	// Convert page to integer
-	page, err := strconv.Atoi(pageStr)
-	if err != nil || page < 1 {
-		page = 1
-	}
-
-	// Convert per_page to integer and validate allowed values
+	// Parse per_page
 	perPage, err := strconv.Atoi(perPageStr)
 	if err != nil {
 		perPage = 15
@@ -34,24 +27,19 @@ func FindAllProducts(c *fiber.Ctx) error {
 		perPage = 15 // Default to 15 if invalid value provided
 	}
 
-	// Always use paginated version for consistent response format
-	products, total, err := dao.DB_FindAllProductsPaginated(page, perPage)
+	// Always use cursor-based pagination for optimal performance
+	products, nextCursor, hasMore, err := dao.DB_FindAllProductsCursorPaginated(perPage, cursor)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}
 
-	// Calculate total pages
-	totalPages := int(math.Ceil(float64(total) / float64(perPage)))
-
-	// Return consistent paginated response format
-	response := utils.PaginatedResponse{
+	response := utils.CursorPaginatedResponse{
 		Data:       products,
-		Page:       page,
 		PerPage:    perPage,
-		Total:      total,
-		TotalPages: totalPages,
+		NextCursor: nextCursor,
+		HasMore:    hasMore,
 	}
 
 	return c.Status(fiber.StatusOK).JSON(response)
