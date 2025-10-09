@@ -15,6 +15,13 @@ type PaginatedResponse struct {
 	TotalPages int         `json:"total_pages"`
 }
 
+type CursorPaginatedResponse struct {
+	Data       interface{} `json:"data"`
+	PerPage    int         `json:"per_page"`
+	NextCursor string      `json:"next_cursor,omitempty"`
+	HasMore    bool        `json:"has_more"`
+}
+
 func SendErrorResponse(c *fiber.Ctx, statusCode int, errorMessage string) error {
 	response := Response{
 		Operation: "Failed",
