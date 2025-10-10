@@ -7,37 +7,46 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func DB_CalculateTotalCostPrice() (float64, error) {
+// DB_CalculateTotalAndExpectedCost calculates:
+// - total_cost = sum(CostPrice * StockQty)
+// - expected_cost = sum(SellingPrice * StockQty)
+func DB_CalculateTotalAndExpectedCost() (float64, float64, error) {
 	collection := dbConfigs.DATABASE.Collection("Products")
 	ctx := context.Background()
 
+	// Match only non-deleted products
 	matchStage := bson.D{{Key: "$match", Value: bson.M{"deleted": false}}}
 
+	// Add fields for total cost and expected cost
 	addFieldsStage := bson.D{{Key: "$addFields", Value: bson.M{
-		"totalCost": bson.M{"$multiply": []string{"$costPrice", "$stockQty"}},
+		"totalCost":    bson.M{"$multiply": []string{"$costPrice", "$stockQty"}},
+		"expectedCost": bson.M{"$multiply": []string{"$sellingPrice", "$stockQty"}},
 	}}}
 
+	// Group to sum all values
 	groupStage := bson.D{{Key: "$group", Value: bson.M{
-		"_id":         nil,
-		"total_value": bson.M{"$sum": "$totalCost"},
+		"_id":           nil,
+		"total_cost":    bson.M{"$sum": "$totalCost"},
+		"expected_cost": bson.M{"$sum": "$expectedCost"},
 	}}}
 
+	// Run aggregation
 	cursor, err := collection.Aggregate(ctx, bson.A{matchStage, addFieldsStage, groupStage})
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
 	defer cursor.Close(ctx)
 
 	var results []bson.M
 	if err := cursor.All(ctx, &results); err != nil {
-		return 0, err
+		return 0, 0, err
 	}
 
 	if len(results) > 0 {
-		if total, ok := results[0]["total_value"].(float64); ok {
-			return total, nil
-		}
+		totalCost, _ := results[0]["total_cost"].(float64)
+		expectedCost, _ := results[0]["expected_cost"].(float64)
+		return totalCost, expectedCost, nil
 	}
 
-	return 0, nil
+	return 0, 0, nil
 }

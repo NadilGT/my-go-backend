@@ -6,8 +6,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func CalculateTotalCostPrice(c *fiber.Ctx) error {
-	total, err := dao.DB_CalculateTotalCostPrice()
+func CalculateTotalAndExpectedCost(c *fiber.Ctx) error {
+	totalCost, expectedCost, err := dao.DB_CalculateTotalAndExpectedCost()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
@@ -15,6 +15,8 @@ func CalculateTotalCostPrice(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"total_cost_value": total,
+		"target_profit": expectedCost - totalCost,
+		"sales_target":  expectedCost,
+		"total_spend":   totalCost,
 	})
 }
