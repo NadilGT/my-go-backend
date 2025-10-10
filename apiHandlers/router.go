@@ -48,5 +48,6 @@ func SetupRoutes(app *fiber.App) {
 	app.Put("/UpdateSupplier", api.UpdateSupplierApi)
 	app.Get("/CalculateTotalCost", api.CalculateTotalAndExpectedCost)
 	app.Put("/UpdateBrand", api.UpdateBrandApi)
+	app.Get("/CalculateBrandCostSummary", api.GetBrandCostSummaryApi)
 
 }
