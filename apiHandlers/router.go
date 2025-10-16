@@ -44,6 +44,8 @@ func SetupRoutes(app *fiber.App) {
 	app.Put("/UpdateProduct", api.UpdateProductApi)
 	app.Put("/UpdateCategory", api.UpdateCategoryApi)
 	app.Get("/FindAllDeletedProducts", api.FindAllDeletedProductsApi)
+	app.Post("/CreateGRN", api.CreateGRN)
+	app.Get("/FindAllGRNs", api.FindAllGRNs)
 	app.Get("/FindAllProductsBySubCategory", api.GetAllProductsBySubCategoryApi)
 	app.Put("/UpdateSupplier", api.UpdateSupplierApi)
 	app.Get("/CalculateTotalCost", api.CalculateTotalAndExpectedCost)
