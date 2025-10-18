@@ -61,4 +61,16 @@ func SetupRoutes(app *fiber.App) {
 	app.Get("/CalculateBrandCostSummary", api.GetBrandCostSummaryApi)
 	app.Delete("/DeleteProductPermanent", api.DeleteProductPermanentApi)
 
+	// Sales Routes
+	app.Post("/CreateSale", api.CreateSaleApi)
+	app.Get("/FindAllSales", api.FindAllSalesApi)
+	app.Get("/FindSaleById", api.FindSaleByIdApi)
+	app.Get("/GetSaleBill", api.GetSaleBillApi)
+	app.Get("/GetSalesLast24Hours", api.GetSalesLast24HoursApi) // NEW: Get sales from last 24 hours
+
+	// Sales Reports Routes (Available for 30 days)
+	app.Get("/GetSalesReports", api.GetSalesReportsApi)                // Get all reports
+	app.Get("/GetSalesReportByDate", api.GetSalesReportByDateApi)      // Get report for specific date
+	app.Post("/ManuallyGenerateReport", api.ManuallyGenerateReportApi) // Manual report generation (testing)
+
 }
