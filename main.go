@@ -3,7 +3,6 @@ package main
 import (
 	"employee-crud/apiHandlers"
 	"employee-crud/dbConfigs"
-	"employee-crud/functions"
 	"os"
 
 	"github.com/gofiber/fiber/v2"
@@ -24,9 +23,6 @@ func main() {
 	}))
 
 	dbConfigs.ConnectMongoDB()
-
-	// Start the sales cleanup scheduler (runs every hour)
-	functions.StartSalesCleanupScheduler()
 
 	apiHandlers.SetupRoutes(app)
 
