@@ -48,6 +48,7 @@ func SetupRoutes(app *fiber.App) {
 	app.Get("/FindAllGRNs", api.FindAllGRNs)
 	app.Get("/FindGRNById", api.FindGRNByIdApi)
 	app.Get("/GetGRNReport", api.GetGRNReportApi)
+	app.Get("/GetGRNReportPDF", api.GetGRNReportPDFApi)
 	app.Get("/GetTotalGRNsCount", api.GetTotalGRNsCount)
 	app.Get("/GetCompletedGRNsCount", api.GetCompletedGRNsCount)
 	app.Get("/GetPendingGRNsCount", api.GetPendingGRNsCount)

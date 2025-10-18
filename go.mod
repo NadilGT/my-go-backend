@@ -5,6 +5,7 @@ go 1.24
 require (
 	github.com/go-playground/validator/v10 v10.27.0
 	github.com/gofiber/fiber/v2 v2.52.9
+	github.com/jung-kurt/gofpdf v1.16.2
 	go.mongodb.org/mongo-driver v1.17.4
 )
 
