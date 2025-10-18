@@ -61,4 +61,11 @@ func SetupRoutes(app *fiber.App) {
 	app.Get("/CalculateBrandCostSummary", api.GetBrandCostSummaryApi)
 	app.Delete("/DeleteProductPermanent", api.DeleteProductPermanentApi)
 
+	// Sales Management Routes
+	app.Post("/CreateSale", api.CreateSaleApi)
+	app.Get("/FindAllSales", api.FindAllSalesApi)
+	app.Get("/FindSaleById", api.FindSaleByIdApi)
+	app.Post("/CalculateOrderSummary", api.CalculateOrderSummaryApi)
+	app.Post("/CalculateChange", api.CalculateChangeApi)
+
 }

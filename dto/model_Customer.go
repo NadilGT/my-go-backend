@@ -1,0 +1,11 @@
+package dto
+
+import "time"
+
+type Customer struct {
+	CustomerID   string    `bson:"customerId" json:"customerId"`
+	Name         string    `bson:"name" json:"name"`
+	MobileNumber string    `bson:"mobileNumber" json:"mobileNumber"`
+	CreatedAt    time.Time `bson:"created_at" json:"created_at"`
+	UpdatedAt    time.Time `bson:"updated_at" json:"updated_at"`
+}
