@@ -67,5 +67,7 @@ func SetupRoutes(app *fiber.App) {
 	app.Get("/FindSaleById", api.FindSaleByIdApi)
 	app.Post("/CalculateOrderSummary", api.CalculateOrderSummaryApi)
 	app.Post("/CalculateChange", api.CalculateChangeApi)
+	app.Get("/GetDailySalesSummary", api.GetDailySalesSummaryApi)
+	app.Get("/GetDailySalesSummaryPDF", api.GetDailySalesSummaryPDFApi)
 
 }

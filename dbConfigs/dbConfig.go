@@ -16,7 +16,8 @@ func ConnectMongoDB() *mongo.Client {
 		log.Fatal(err)
 	}
 
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel() // Ensure context resources are released
 	if err := client.Connect(ctx); err != nil {
 		log.Fatal("Error connecting to MongoDB:", err)
 	}
