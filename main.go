@@ -24,6 +24,11 @@ func main() {
 
 	dbConfigs.ConnectMongoDB()
 
+	// Setup TTL index for Sales collection (auto-delete after 24 hours)
+	if err := dbConfigs.SetupSalesTTL(); err != nil {
+		log.Fatal("Failed to setup Sales TTL index:", err)
+	}
+
 	apiHandlers.SetupRoutes(app)
 
 	port := os.Getenv("PORT")
