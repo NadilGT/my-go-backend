@@ -3,6 +3,7 @@ package main
 import (
 	"employee-crud/apiHandlers"
 	"employee-crud/dbConfigs"
+	"employee-crud/utils"
 	"os"
 
 	"github.com/gofiber/fiber/v2"
@@ -28,6 +29,17 @@ func main() {
 	if err := dbConfigs.SetupSalesTTL(); err != nil {
 		log.Fatal("Failed to setup Sales TTL index:", err)
 	}
+
+	// Setup TTL index for DailyReports collection (auto-delete at end of month)
+	if err := dbConfigs.SetupDailyReportsTTL(); err != nil {
+		log.Fatal("Failed to setup DailyReports TTL index:", err)
+	}
+
+	// Start background scheduler for automatic daily report saving
+	utils.StartDailyReportScheduler()
+
+	// Check and save any missing reports from the past 7 days
+	go utils.SaveMissingReports()
 
 	apiHandlers.SetupRoutes(app)
 

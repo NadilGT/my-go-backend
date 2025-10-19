@@ -70,4 +70,9 @@ func SetupRoutes(app *fiber.App) {
 	app.Get("/GetDailySalesSummary", api.GetDailySalesSummaryApi)
 	app.Get("/GetDailySalesSummaryPDF", api.GetDailySalesSummaryPDFApi)
 
+	// Saved Daily Reports Routes
+	app.Get("/GetSavedDailyReport", api.GetSavedDailyReportApi)
+	app.Get("/GetMonthlyReports", api.GetMonthlyReportsApi)
+	app.Get("/GetDateRangeReportsPDF", api.GetDateRangeReportsPDFApi)
+
 }
