@@ -41,5 +41,12 @@ func CreateProduct(c *fiber.Ctx) error {
 		return utils.SendErrorResponse(c, fiber.StatusInternalServerError, err.Error())
 	}
 
+	// Automatically sync the product stock to Stocks collection
+	if err := dao.DB_SyncSingleProductStock(&inputObj); err != nil {
+		// Log the error but don't fail the product creation
+		// You can add logging here if needed
+		// For now, we'll silently continue
+	}
+
 	return utils.SendSuccessResponse(c)
 }
