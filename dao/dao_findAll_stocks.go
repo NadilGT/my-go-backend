@@ -49,6 +49,11 @@ func DB_FindAllStocksCursorPaginated(limit int, cursor string) ([]dto.Stock, str
 		return nil, "", false, err
 	}
 
+	// Calculate status for each stock
+	for i := range stocks {
+		stocks[i].CalculateStatus()
+	}
+
 	// Determine next cursor and if there are more pages
 	var nextCursor string
 	hasMore := false
