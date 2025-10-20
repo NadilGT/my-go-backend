@@ -76,8 +76,12 @@ func SetupRoutes(app *fiber.App) {
 	app.Get("/GetDateRangeReportsPDF", api.GetDateRangeReportsPDFApi)
 
 	// Stock Management Routes
-	app.Post("/SyncStocks", api.SyncStocksApi)                     // Sync all product stocks to Stocks collection
-	app.Get("/FindAllStocks", api.FindAllStocksApi)                // Get all stocks with pagination (includes total count)
-	app.Get("/FindAllStocksLite", api.FindAllStocksLightweightApi) // Get all stocks with pagination (lightweight, no total count)
+	app.Post("/SyncStocks", api.SyncStocksApi)                                     // Sync all product stocks to Stocks collection
+	app.Get("/FindAllStocks", api.FindAllStocksApi)                                // Get all stocks with pagination (includes total count)
+	app.Get("/FindAllStocksLite", api.FindAllStocksLightweightApi)                 // Get all stocks with pagination (lightweight, no total count)
+	app.Get("/FindAllStocksFiltered", api.FindAllStocksFilteredApi)                // Get filtered stocks by status with pagination (includes total count)
+	app.Get("/FindAllStocksFilteredLite", api.FindAllStocksFilteredLightweightApi) // Get filtered stocks by status with pagination (lightweight)
+	app.Get("/GetTotalStockQuantity", api.GetTotalStockQuantityApi)                // Get sum of all stockQty (total quantity in inventory)
+	app.Get("/GetStockStatusCounts", api.GetStockStatusCountsApi)                  // Get count of stocks by status (Low/Average/Good)
 
 }
