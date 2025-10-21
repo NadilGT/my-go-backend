@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func UpdateProductStock(productId string, quantitySold int) error {
@@ -14,27 +15,26 @@ func UpdateProductStock(productId string, quantitySold int) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	filter := bson.M{"productId": productId}
+	filter := bson.M{"productId": productId, "deleted": false}
 	update := bson.M{
 		"$inc": bson.M{"stockQty": -quantitySold},
 		"$set": bson.M{"updated_at": time.Now()},
 	}
 
-	_, err := collection.UpdateOne(ctx, filter, update)
-	if err != nil {
-		return err
-	}
+	// Use FindOneAndUpdate to get the updated document in a single operation
+	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
 
-	// Get the updated product to sync with Stocks collection
-	updatedProduct, err := GetProductByProductId(productId)
+	var updatedProduct dto.Product
+	err := collection.FindOneAndUpdate(ctx, filter, update, opts).Decode(&updatedProduct)
 	if err != nil {
 		return err
 	}
 
 	// Sync the updated stock to Stocks collection
-	if err := DB_SyncSingleProductStock(updatedProduct); err != nil {
-		// Log error but don't fail the stock update
-		// The product stock is already updated
+	// This ensures the Stocks collection is immediately updated when a sale is made
+	if err := DB_SyncSingleProductStock(&updatedProduct); err != nil {
+		// Return the error to ensure sync failures are caught
+		return err
 	}
 
 	return nil

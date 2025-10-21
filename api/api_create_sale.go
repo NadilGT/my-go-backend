@@ -113,23 +113,19 @@ func CreateSaleApi(c *fiber.Ctx) error {
 	}
 
 	// Update product stock for each item
-	stockUpdateErrors := []string{}
+	// This automatically syncs each product to the Stocks collection
 	for _, item := range req.Items {
 		if err := dao.UpdateProductStock(item.ProductID, item.Quantity); err != nil {
-			// Collect error messages instead of silently ignoring
-			stockUpdateErrors = append(stockUpdateErrors, "Failed to update stock for "+item.ProductID)
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error":   "Failed to update stock for product: " + item.ProductID,
+				"details": err.Error(),
+			})
 		}
 	}
 
-	// Return success with any stock update warnings
-	response := fiber.Map{
-		"message": "Sale created successfully",
+	// Return success
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+		"message": "Sale created successfully and stocks updated",
 		"sale":    sale,
-	}
-
-	if len(stockUpdateErrors) > 0 {
-		response["warnings"] = stockUpdateErrors
-	}
-
-	return c.Status(fiber.StatusCreated).JSON(response)
+	})
 }
