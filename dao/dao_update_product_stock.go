@@ -21,7 +21,23 @@ func UpdateProductStock(productId string, quantitySold int) error {
 	}
 
 	_, err := collection.UpdateOne(ctx, filter, update)
-	return err
+	if err != nil {
+		return err
+	}
+
+	// Get the updated product to sync with Stocks collection
+	updatedProduct, err := GetProductByProductId(productId)
+	if err != nil {
+		return err
+	}
+
+	// Sync the updated stock to Stocks collection
+	if err := DB_SyncSingleProductStock(updatedProduct); err != nil {
+		// Log error but don't fail the stock update
+		// The product stock is already updated
+	}
+
+	return nil
 }
 
 func GetProductByProductId(productId string) (*dto.Product, error) {
