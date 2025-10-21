@@ -113,15 +113,19 @@ func CreateSaleApi(c *fiber.Ctx) error {
 	}
 
 	// Update product stock for each item
+	// This automatically syncs each product to the Stocks collection
 	for _, item := range req.Items {
 		if err := dao.UpdateProductStock(item.ProductID, item.Quantity); err != nil {
-			// Log error but don't fail the sale
-			// In production, you might want to implement a rollback mechanism
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error":   "Failed to update stock for product: " + item.ProductID,
+				"details": err.Error(),
+			})
 		}
 	}
 
+	// Return success
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"message": "Sale created successfully",
+		"message": "Sale created successfully and stocks updated",
 		"sale":    sale,
 	})
 }
