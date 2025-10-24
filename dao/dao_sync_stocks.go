@@ -53,28 +53,60 @@ func DB_SyncStocksFromProducts() error {
 		currentTime := time.Now()
 
 		for _, product := range products {
-			// Upsert operation: update if exists, insert if not
-			// This uses productId as the unique identifier
-			filter := bson.M{"productId": product.ProductId}
-			update := bson.M{
-				"$set": bson.M{
-					"productId":   product.ProductId,
-					"name":        product.Name,
-					"stockQty":    product.StockQty,
-					"expiry_date": product.ExpiryDate,
-					"updated_at":  currentTime,
-				},
-				"$setOnInsert": bson.M{
-					"created_at": currentTime,
-				},
+			// If product has batches, create separate stock entries for each batch
+			if len(product.Batches) > 0 {
+				for _, batch := range product.Batches {
+					filter := bson.M{
+						"productId": product.ProductId,
+						"batchId":   batch.BatchId,
+					}
+					update := bson.M{
+						"$set": bson.M{
+							"productId":   product.ProductId,
+							"batchId":     batch.BatchId,
+							"name":        product.Name,
+							"stockQty":    batch.StockQty,
+							"expiry_date": batch.ExpiryDate,
+							"updated_at":  currentTime,
+						},
+						"$setOnInsert": bson.M{
+							"created_at": currentTime,
+						},
+					}
+
+					operation := mongo.NewUpdateOneModel()
+					operation.SetFilter(filter)
+					operation.SetUpdate(update)
+					operation.SetUpsert(true)
+
+					operations = append(operations, operation)
+				}
+			} else {
+				// Legacy support: products without batches
+				filter := bson.M{
+					"productId": product.ProductId,
+					"batchId":   bson.M{"$exists": false},
+				}
+				update := bson.M{
+					"$set": bson.M{
+						"productId":   product.ProductId,
+						"name":        product.Name,
+						"stockQty":    product.StockQty,
+						"expiry_date": product.ExpiryDate,
+						"updated_at":  currentTime,
+					},
+					"$setOnInsert": bson.M{
+						"created_at": currentTime,
+					},
+				}
+
+				operation := mongo.NewUpdateOneModel()
+				operation.SetFilter(filter)
+				operation.SetUpdate(update)
+				operation.SetUpsert(true)
+
+				operations = append(operations, operation)
 			}
-
-			operation := mongo.NewUpdateOneModel()
-			operation.SetFilter(filter)
-			operation.SetUpdate(update)
-			operation.SetUpsert(true)
-
-			operations = append(operations, operation)
 		}
 
 		// Execute bulk write
@@ -100,25 +132,80 @@ func DB_SyncSingleProductStock(product *dto.Product) error {
 
 	currentTime := time.Now()
 
-	// Upsert operation
-	filter := bson.M{"productId": product.ProductId}
-	update := bson.M{
-		"$set": bson.M{
-			"productId":   product.ProductId,
-			"name":        product.Name,
-			"stockQty":    product.StockQty,
-			"expiry_date": product.ExpiryDate,
-			"updated_at":  currentTime,
-		},
-		"$setOnInsert": bson.M{
-			"created_at": currentTime,
-		},
-	}
+	// If product has batches, sync each batch as a separate stock entry
+	if len(product.Batches) > 0 {
+		// First, get all existing stock entries for this product to clean up removed batches
+		existingStocks, err := stocksCollection.Find(ctx, bson.M{"productId": product.ProductId})
+		if err == nil {
+			var stocks []dto.Stock
+			if err := existingStocks.All(ctx, &stocks); err == nil {
+				// Create a map of current batch IDs
+				currentBatchIds := make(map[string]bool)
+				for _, batch := range product.Batches {
+					currentBatchIds[batch.BatchId] = true
+				}
 
-	opts := options.Update().SetUpsert(true)
-	_, err := stocksCollection.UpdateOne(ctx, filter, update, opts)
-	if err != nil {
-		return err
+				// Delete stock entries for batches that no longer exist
+				for _, stock := range stocks {
+					if stock.BatchId != "" && !currentBatchIds[stock.BatchId] {
+						stocksCollection.DeleteOne(ctx, bson.M{"_id": stock.ID})
+					}
+				}
+			}
+			existingStocks.Close(ctx)
+		}
+
+		// Sync each batch
+		for _, batch := range product.Batches {
+			// Use productId + batchId as unique identifier
+			filter := bson.M{
+				"productId": product.ProductId,
+				"batchId":   batch.BatchId,
+			}
+			update := bson.M{
+				"$set": bson.M{
+					"productId":   product.ProductId,
+					"batchId":     batch.BatchId,
+					"name":        product.Name,
+					"stockQty":    batch.StockQty,
+					"expiry_date": batch.ExpiryDate,
+					"updated_at":  currentTime,
+				},
+				"$setOnInsert": bson.M{
+					"created_at": currentTime,
+				},
+			}
+
+			opts := options.Update().SetUpsert(true)
+			_, err := stocksCollection.UpdateOne(ctx, filter, update, opts)
+			if err != nil {
+				return err
+			}
+		}
+	} else {
+		// Legacy support: products without batches
+		filter := bson.M{
+			"productId": product.ProductId,
+			"batchId":   bson.M{"$exists": false},
+		}
+		update := bson.M{
+			"$set": bson.M{
+				"productId":   product.ProductId,
+				"name":        product.Name,
+				"stockQty":    product.StockQty,
+				"expiry_date": product.ExpiryDate,
+				"updated_at":  currentTime,
+			},
+			"$setOnInsert": bson.M{
+				"created_at": currentTime,
+			},
+		}
+
+		opts := options.Update().SetUpsert(true)
+		_, err := stocksCollection.UpdateOne(ctx, filter, update, opts)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

@@ -9,6 +9,7 @@ import (
 type Stock struct {
 	ID         primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
 	ProductId  string             `bson:"productId" json:"productId"`
+	BatchId    string             `bson:"batchId,omitempty" json:"batchId,omitempty"`
 	Name       string             `bson:"name" json:"name"`
 	StockQty   int                `bson:"stockQty" json:"stockQty"`
 	Status     string             `bson:"-" json:"status"` // Not stored in DB, calculated dynamically

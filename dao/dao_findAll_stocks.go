@@ -12,6 +12,7 @@ import (
 
 // DB_FindAllStocksCursorPaginated retrieves all stocks with cursor-based pagination
 // This is optimized for large datasets (10000+ records)
+// Stocks are sorted by productId first, then by batchId to group batches under same product
 func DB_FindAllStocksCursorPaginated(limit int, cursor string) ([]dto.Stock, string, bool, error) {
 	collection := dbConfigs.DATABASE.Collection("Stocks")
 	ctx := context.Background()
@@ -36,7 +37,12 @@ func DB_FindAllStocksCursorPaginated(limit int, cursor string) ([]dto.Stock, str
 	// Set up find options
 	findOptions := options.Find()
 	findOptions.SetLimit(int64(limit))
-	findOptions.SetSort(bson.D{{Key: "updated_at", Value: -1}})
+	// Sort by productId first (ascending), then by updated_at (descending)
+	// This groups batches of the same product together
+	findOptions.SetSort(bson.D{
+		{Key: "productId", Value: 1},
+		{Key: "updated_at", Value: -1},
+	})
 
 	cursor_result, err := collection.Find(ctx, filter, findOptions)
 	if err != nil {
