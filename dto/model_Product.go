@@ -15,6 +15,7 @@ type Product struct {
 	SellingPrice  float64    `bson:"sellingPrice" json:"sellingPrice"`
 	StockQty      int        `bson:"stockQty" json:"stockQty"`
 	ExpiryDate    *time.Time `bson:"expiry_date,omitempty" json:"expiry_date,omitempty"`
+	Batches       []Batch    `bson:"batches,omitempty" json:"batches,omitempty"`
 	Deleted       bool       `bson:"deleted" json:"deleted"`
 	CreatedAt     time.Time  `bson:"created_at" json:"created_at"`
 	UpdatedAt     time.Time  `bson:"updated_at" json:"updated_at"`

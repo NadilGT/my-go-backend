@@ -54,7 +54,12 @@ func DB_FindAllStocksFilteredCursorPaginated(limit int, cursor string, minQty in
 	// Set up find options
 	findOptions := options.Find()
 	findOptions.SetLimit(int64(limit))
-	findOptions.SetSort(bson.D{{Key: "updated_at", Value: -1}})
+	// Sort by productId first (ascending), then by updated_at (descending)
+	// This groups batches of the same product together
+	findOptions.SetSort(bson.D{
+		{Key: "productId", Value: 1},
+		{Key: "updated_at", Value: -1},
+	})
 
 	cursor_result, err := collection.Find(ctx, filter, findOptions)
 	if err != nil {
