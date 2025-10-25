@@ -2,6 +2,7 @@ package api
 
 import (
 	"employee-crud/dao"
+	"employee-crud/utils"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -18,6 +19,10 @@ func SyncStocksApi(c *fiber.Ctx) error {
 			"message":   "Failed to sync stocks from products",
 		})
 	}
+
+	// Invalidate metrics cache after stock sync
+	utils.MetricsCache.Delete("stock_status_counts")
+	utils.MetricsCache.Delete("total_stock_quantity")
 
 	// Get the total count of synced stocks
 	count, _ := dao.DB_GetStocksCount()
