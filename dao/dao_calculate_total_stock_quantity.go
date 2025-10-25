@@ -7,14 +7,17 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-// DB_CalculateTotalStockQuantity calculates the sum of all stockQty in the Stocks collection
-// Returns the total quantity of all products in stock
+// DB_CalculateTotalStockQuantity calculates the sum of all stockQty in the Products collection
+// Returns the total quantity of all products in stock (includes all products, not just those with batches)
 func DB_CalculateTotalStockQuantity() (int64, error) {
-	collection := dbConfigs.DATABASE.Collection("Stocks")
+	collection := dbConfigs.DATABASE.Collection("Products")
 	ctx := context.Background()
 
-	// MongoDB aggregation pipeline to sum all stockQty
+	// MongoDB aggregation pipeline to sum all stockQty from non-deleted products
 	pipeline := []bson.M{
+		{
+			"$match": bson.M{"deleted": false}, // Only non-deleted products
+		},
 		{
 			"$group": bson.M{
 				"_id":           nil,
@@ -37,7 +40,7 @@ func DB_CalculateTotalStockQuantity() (int64, error) {
 		return 0, err
 	}
 
-	// If no stocks found, return 0
+	// If no products found, return 0
 	if len(result) == 0 {
 		return 0, nil
 	}
