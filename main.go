@@ -8,11 +8,25 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
+	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
 func main() {
 	app := fiber.New()
+
+	// GZIP Compression Middleware - Compresses responses for better performance
+	app.Use(compress.New(compress.Config{
+		Level: compress.LevelBestSpeed, // Balance between speed and compression
+	}))
+
+	// Response Time Logger - Monitor API performance
+	app.Use(logger.New(logger.Config{
+		Format:     "[${time}] ${status} - ${latency} ${method} ${path}\n",
+		TimeFormat: "2006-01-02 15:04:05",
+		TimeZone:   "Local",
+	}))
 
 	// Configure CORS to allow your specific domains
 	app.Use(cors.New(cors.Config{

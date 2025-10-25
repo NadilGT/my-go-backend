@@ -116,10 +116,14 @@ func main() {
 }
 
 func createIndexes(ctx context.Context, collection *mongo.Collection) error {
-	// Index 1: updated_at descending for efficient cursor pagination
+	// Index 1: Compound index (updated_at, _id) for efficient cursor pagination
+	// CRITICAL: Must be compound index to support sorting by both fields
 	index1 := mongo.IndexModel{
-		Keys:    bson.D{{Key: "updated_at", Value: -1}},
-		Options: options.Index().SetName("updated_at_desc"),
+		Keys: bson.D{
+			{Key: "updated_at", Value: -1},
+			{Key: "_id", Value: -1},
+		},
+		Options: options.Index().SetName("updated_at_id_desc"),
 	}
 
 	// Index 2: productId unique for preventing duplicates
@@ -130,7 +134,13 @@ func createIndexes(ctx context.Context, collection *mongo.Collection) error {
 			SetName("productId_unique"),
 	}
 
-	_, err := collection.Indexes().CreateMany(ctx, []mongo.IndexModel{index1, index2})
+	// Index 3: stockQty for efficient filtering by status (low/average/good)
+	index3 := mongo.IndexModel{
+		Keys:    bson.D{{Key: "stockQty", Value: 1}},
+		Options: options.Index().SetName("stockQty_idx"),
+	}
+
+	_, err := collection.Indexes().CreateMany(ctx, []mongo.IndexModel{index1, index2, index3})
 	return err
 }
 
