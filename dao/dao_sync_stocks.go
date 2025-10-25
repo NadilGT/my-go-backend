@@ -53,9 +53,15 @@ func DB_SyncStocksFromProducts() error {
 		currentTime := time.Now()
 
 		for _, product := range products {
-			// If product has batches, create separate stock entries for each batch
+			// Only sync products that have batches
+			// Skip products without batches to prevent null batchId entries
 			if len(product.Batches) > 0 {
 				for _, batch := range product.Batches {
+					// Validate batch has an ID
+					if batch.BatchId == "" {
+						continue // Skip batches with empty IDs
+					}
+
 					filter := bson.M{
 						"productId": product.ProductId,
 						"batchId":   batch.BatchId,
@@ -81,31 +87,6 @@ func DB_SyncStocksFromProducts() error {
 
 					operations = append(operations, operation)
 				}
-			} else {
-				// Legacy support: products without batches
-				filter := bson.M{
-					"productId": product.ProductId,
-					"batchId":   bson.M{"$exists": false},
-				}
-				update := bson.M{
-					"$set": bson.M{
-						"productId":   product.ProductId,
-						"name":        product.Name,
-						"stockQty":    product.StockQty,
-						"expiry_date": product.ExpiryDate,
-						"updated_at":  currentTime,
-					},
-					"$setOnInsert": bson.M{
-						"created_at": currentTime,
-					},
-				}
-
-				operation := mongo.NewUpdateOneModel()
-				operation.SetFilter(filter)
-				operation.SetUpdate(update)
-				operation.SetUpsert(true)
-
-				operations = append(operations, operation)
 			}
 		}
 
@@ -134,26 +115,9 @@ func DB_SyncSingleProductStock(product *dto.Product) error {
 
 	// If product has batches, sync each batch as a separate stock entry
 	if len(product.Batches) > 0 {
-		// First, get all existing stock entries for this product to clean up removed batches
-		existingStocks, err := stocksCollection.Find(ctx, bson.M{"productId": product.ProductId})
-		if err == nil {
-			var stocks []dto.Stock
-			if err := existingStocks.All(ctx, &stocks); err == nil {
-				// Create a map of current batch IDs
-				currentBatchIds := make(map[string]bool)
-				for _, batch := range product.Batches {
-					currentBatchIds[batch.BatchId] = true
-				}
-
-				// Delete stock entries for batches that no longer exist
-				for _, stock := range stocks {
-					if stock.BatchId != "" && !currentBatchIds[stock.BatchId] {
-						stocksCollection.DeleteOne(ctx, bson.M{"_id": stock.ID})
-					}
-				}
-			}
-			existingStocks.Close(ctx)
-		}
+		// First, delete ALL existing stock entries for this product (including orphaned null batches)
+		// Then recreate them from the current batches - this is cleaner and ensures no orphaned data
+		stocksCollection.DeleteMany(ctx, bson.M{"productId": product.ProductId})
 
 		// Sync each batch
 		for _, batch := range product.Batches {
@@ -183,29 +147,12 @@ func DB_SyncSingleProductStock(product *dto.Product) error {
 			}
 		}
 	} else {
-		// Legacy support: products without batches
-		filter := bson.M{
-			"productId": product.ProductId,
-			"batchId":   bson.M{"$exists": false},
-		}
-		update := bson.M{
-			"$set": bson.M{
-				"productId":   product.ProductId,
-				"name":        product.Name,
-				"stockQty":    product.StockQty,
-				"expiry_date": product.ExpiryDate,
-				"updated_at":  currentTime,
-			},
-			"$setOnInsert": bson.M{
-				"created_at": currentTime,
-			},
-		}
-
-		opts := options.Update().SetUpsert(true)
-		_, err := stocksCollection.UpdateOne(ctx, filter, update, opts)
-		if err != nil {
-			return err
-		}
+		// Products without batches: Skip syncing to avoid orphaned stock entries
+		// Products should use the batch system - this is legacy code path
+		// Delete any existing stock entries for this product
+		stocksCollection.DeleteMany(ctx, bson.M{"productId": product.ProductId})
+		// Note: Products without batches won't appear in stock listing
+		// This encourages migration to batch-based inventory system
 	}
 
 	return nil
