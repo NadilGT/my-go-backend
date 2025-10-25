@@ -12,26 +12,27 @@ import (
 
 // ProductWithStockInfo represents a product with its stock information
 type ProductWithStockInfo struct {
-	ProductId  string     `json:"productId"`
-	Name       string     `json:"name"`
-	StockQty   int        `json:"stockQty"`
-	ExpiryDate *time.Time `json:"expiry_date,omitempty"`
-	BatchId    string     `json:"batchId,omitempty"`
-	HasBatches bool       `json:"hasBatches"`
-	BatchCount int        `json:"batchCount"`
-	Status     string     `json:"status,omitempty"`
-	CreatedAt  time.Time  `json:"created_at"`
-	UpdatedAt  time.Time  `json:"updated_at"`
+	ProductId       string     `json:"productId"`
+	Name            string     `json:"name"`
+	StockQty        int        `json:"stockQty"`        // Batch quantity (or product total if no batches)
+	ProductStockQty int        `json:"productStockQty"` // Always the product's total stock
+	ExpiryDate      *time.Time `json:"expiry_date,omitempty"`
+	BatchId         string     `json:"batchId,omitempty"`
+	HasBatches      bool       `json:"hasBatches"`
+	BatchCount      int        `json:"batchCount"`
+	ProductStatus   string     `json:"productStatus"` // Status based on product's TOTAL stock
+	CreatedAt       time.Time  `json:"created_at"`
+	UpdatedAt       time.Time  `json:"updated_at"`
 }
 
-// CalculateStatus calculates the stock status for a product
-func (p *ProductWithStockInfo) CalculateStatus() {
-	if p.StockQty < 10 {
-		p.Status = "Low"
-	} else if p.StockQty >= 10 && p.StockQty < 25 {
-		p.Status = "Average"
+// CalculateProductStatus calculates the stock status based on PRODUCT's total stockQty
+func (p *ProductWithStockInfo) CalculateProductStatus(totalStockQty int) {
+	if totalStockQty < 10 {
+		p.ProductStatus = "Low"
+	} else if totalStockQty >= 10 && totalStockQty < 25 {
+		p.ProductStatus = "Average"
 	} else {
-		p.Status = "Good"
+		p.ProductStatus = "Good"
 	}
 }
 
@@ -83,33 +84,35 @@ func DB_FindAllProductsWithStock(limit int, cursor string) ([]ProductWithStockIn
 			// Product has batches - create entry for each batch
 			for _, batch := range product.Batches {
 				stockInfo := ProductWithStockInfo{
-					ProductId:  product.ProductId,
-					Name:       product.Name,
-					StockQty:   batch.StockQty,
-					ExpiryDate: batch.ExpiryDate,
-					BatchId:    batch.BatchId,
-					HasBatches: true,
-					BatchCount: len(product.Batches),
-					CreatedAt:  product.CreatedAt,
-					UpdatedAt:  product.UpdatedAt,
+					ProductId:       product.ProductId,
+					Name:            product.Name,
+					StockQty:        batch.StockQty,   // Individual batch quantity
+					ProductStockQty: product.StockQty, // Product's total stock
+					ExpiryDate:      batch.ExpiryDate,
+					BatchId:         batch.BatchId,
+					HasBatches:      true,
+					BatchCount:      len(product.Batches),
+					CreatedAt:       product.CreatedAt,
+					UpdatedAt:       product.UpdatedAt,
 				}
-				stockInfo.CalculateStatus()
+				stockInfo.CalculateProductStatus(product.StockQty) // Use product's TOTAL stock
 				productsWithStock = append(productsWithStock, stockInfo)
 			}
 		} else {
 			// Product has no batches - create single entry
 			stockInfo := ProductWithStockInfo{
-				ProductId:  product.ProductId,
-				Name:       product.Name,
-				StockQty:   product.StockQty,
-				ExpiryDate: product.ExpiryDate,
-				BatchId:    "", // No batch
-				HasBatches: false,
-				BatchCount: 0,
-				CreatedAt:  product.CreatedAt,
-				UpdatedAt:  product.UpdatedAt,
+				ProductId:       product.ProductId,
+				Name:            product.Name,
+				StockQty:        product.StockQty,
+				ProductStockQty: product.StockQty,
+				ExpiryDate:      product.ExpiryDate,
+				BatchId:         "", // No batch
+				HasBatches:      false,
+				BatchCount:      0,
+				CreatedAt:       product.CreatedAt,
+				UpdatedAt:       product.UpdatedAt,
 			}
-			stockInfo.CalculateStatus()
+			stockInfo.CalculateProductStatus(product.StockQty)
 			productsWithStock = append(productsWithStock, stockInfo)
 		}
 	}
