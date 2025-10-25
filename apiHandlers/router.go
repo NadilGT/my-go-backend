@@ -84,4 +84,11 @@ func SetupRoutes(app *fiber.App) {
 	app.Get("/GetTotalStockQuantity", api.GetTotalStockQuantityApi)                // Get sum of all stockQty (total quantity in inventory)
 	app.Get("/GetStockStatusCounts", api.GetStockStatusCountsApi)                  // Get count of stocks by status (Low/Average/Good)
 
+	// Batch Stock Management Routes
+	app.Post("/AddStock", api.AddStock)                // Add stock to existing product (adds to existing batch or creates new batch based on expiry date)
+	app.Put("/EditBatchStock", api.EditBatchStock)     // Edit stock quantity of a specific batch
+	app.Put("/EditBatchDetails", api.EditBatchDetails) // Edit batch details (expiry date, prices)
+	app.Put("/RemoveStock", api.RemoveStockFromBatch)  // Remove/reduce stock from a specific batch
+	app.Delete("/DeleteBatch", api.DeleteBatch)        // Delete a batch completely
+
 }
