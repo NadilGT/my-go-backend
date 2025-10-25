@@ -79,10 +79,16 @@ func SetupRoutes(app *fiber.App) {
 	app.Post("/SyncStocks", api.SyncStocksApi)                                     // Sync all product stocks to Stocks collection
 	app.Get("/FindAllStocks", api.FindAllStocksApi)                                // Get all stocks with pagination (includes total count)
 	app.Get("/FindAllStocksLite", api.FindAllStocksLightweightApi)                 // Get all stocks with pagination (lightweight, no total count)
+	app.Get("/FindAllProductsWithStock", api.FindAllProductsWithStockApi)          // Get all products with stock info (includes products without batches)
+	app.Get("/FindAllProductsWithStockLite", api.FindAllProductsWithStockLiteApi)  // Lightweight version - all products with stock info
 	app.Get("/FindAllStocksFiltered", api.FindAllStocksFilteredApi)                // Get filtered stocks by status with pagination (includes total count)
 	app.Get("/FindAllStocksFilteredLite", api.FindAllStocksFilteredLightweightApi) // Get filtered stocks by status with pagination (lightweight)
 	app.Get("/GetTotalStockQuantity", api.GetTotalStockQuantityApi)                // Get sum of all stockQty (total quantity in inventory)
 	app.Get("/GetStockStatusCounts", api.GetStockStatusCountsApi)                  // Get count of stocks by status (Low/Average/Good)
+
+	// Stock Maintenance Routes
+	app.Delete("/CleanupOrphanedStocks", api.CleanupOrphanedStocksApi) // Remove stock entries with null/empty batchId
+	app.Get("/ValidateStockIntegrity", api.ValidateStockIntegrityApi)  // Check for stock data inconsistencies
 
 	// Batch Stock Management Routes
 	app.Post("/AddStock", api.AddStock)                // Add stock to existing product (adds to existing batch or creates new batch based on expiry date)
