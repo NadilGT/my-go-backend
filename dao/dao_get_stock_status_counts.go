@@ -16,13 +16,16 @@ type StockStatusCounts struct {
 }
 
 // DB_GetStockStatusCounts returns the count of stocks grouped by status
-// This uses MongoDB aggregation for optimal performance
+// This queries the Products collection directly to include all products
 func DB_GetStockStatusCounts() (*StockStatusCounts, error) {
-	collection := dbConfigs.DATABASE.Collection("Stocks")
+	collection := dbConfigs.DATABASE.Collection("Products")
 	ctx := context.Background()
 
-	// MongoDB aggregation pipeline to categorize and count stocks
+	// MongoDB aggregation pipeline to categorize and count products by stock status
 	pipeline := []bson.M{
+		{
+			"$match": bson.M{"deleted": false}, // Only non-deleted products
+		},
 		{
 			"$project": bson.M{
 				"status": bson.M{
