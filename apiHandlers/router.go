@@ -7,6 +7,8 @@ import (
 )
 
 func SetupRoutes(app *fiber.App) {
+	// Expiring Stocks Report Route
+	app.Get("/GetExpiringStocksReportPDF", api.GetExpiringStocksReportPDF)
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello from Fiber on Render!")
