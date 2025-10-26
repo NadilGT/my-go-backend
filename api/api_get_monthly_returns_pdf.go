@@ -43,6 +43,17 @@ func GetMonthlyReturnsReportPDF(c *fiber.Ctx) error {
 	return c.Send(pdfBytes)
 }
 
+// truncateString truncates a string to fit within specified width
+func truncateString(s string, maxLen int) string {
+	if len(s) <= maxLen {
+		return s
+	}
+	if maxLen <= 3 {
+		return s[:maxLen]
+	}
+	return s[:maxLen-2] + ".."
+}
+
 func generateMonthlyReturnsPDF(month time.Time, returns []dto.ReturnDTO) ([]byte, error) {
 	pdf := gofpdf.New("P", "mm", "A4", "")
 	pdf.AddPage()
@@ -62,30 +73,49 @@ func generateMonthlyReturnsPDF(month time.Time, returns []dto.ReturnDTO) ([]byte
 	pdf.CellFormat(0, 10, fmt.Sprintf("Total Returns: %d", len(returns)), "", 1, "L", false, 0, "")
 	pdf.Ln(5)
 
-	// Table header
-	pdf.SetFont("Arial", "B", 10)
+	// Adjusted column widths to fit A4 page (total: 180mm usable width)
+	pdf.SetFont("Arial", "B", 9)
 	pdf.SetFillColor(52, 73, 94)
 	pdf.SetTextColor(255, 255, 255)
-	colWidths := []float64{18, 30, 30, 30, 25, 25, 35, 25}
+	colWidths := []float64{22, 28, 24, 22, 20, 18, 26, 20}
 	headers := []string{"Date", "Customer", "Contact", "Bill No.", "Product", "Amount", "Reason", "Notes"}
 	for i, h := range headers {
 		pdf.CellFormat(colWidths[i], 8, h, "1", 0, "C", true, 0, "")
 	}
 	pdf.Ln(8)
 
-	pdf.SetFont("Arial", "", 9)
+	pdf.SetFont("Arial", "", 8)
 	pdf.SetTextColor(0, 0, 0)
+	
+	// Alternating row colors for better readability
+	fillColor := false
+	
 	for _, ret := range returns {
 		for _, prod := range ret.Products {
-			pdf.CellFormat(colWidths[0], 7, ret.CreatedAt[:10], "1", 0, "C", false, 0, "")
-			pdf.CellFormat(colWidths[1], 7, ret.CustomerName, "1", 0, "L", false, 0, "")
-			pdf.CellFormat(colWidths[2], 7, ret.ContactNumber, "1", 0, "L", false, 0, "")
-			pdf.CellFormat(colWidths[3], 7, ret.OriginalBillNumber, "1", 0, "L", false, 0, "")
-			pdf.CellFormat(colWidths[4], 7, prod.ProductID, "1", 0, "L", false, 0, "")
-			pdf.CellFormat(colWidths[5], 7, fmt.Sprintf("%.2f", prod.Amount), "1", 0, "R", false, 0, "")
-			pdf.CellFormat(colWidths[6], 7, prod.Reason, "1", 0, "L", false, 0, "")
-			pdf.CellFormat(colWidths[7], 7, ret.AdditionalNotes, "1", 0, "L", false, 0, "")
+			if fillColor {
+				pdf.SetFillColor(240, 240, 240)
+			} else {
+				pdf.SetFillColor(255, 255, 255)
+			}
+			
+			// Truncate long text to fit columns
+			customerName := truncateString(ret.CustomerName, 18)
+			billNumber := truncateString(ret.OriginalBillNumber, 14)
+			productID := truncateString(prod.ProductID, 12)
+			reason := truncateString(prod.Reason, 16)
+			notes := truncateString(ret.AdditionalNotes, 12)
+			
+			pdf.CellFormat(colWidths[0], 7, ret.CreatedAt[:10], "1", 0, "C", fillColor, 0, "")
+			pdf.CellFormat(colWidths[1], 7, customerName, "1", 0, "L", fillColor, 0, "")
+			pdf.CellFormat(colWidths[2], 7, ret.ContactNumber, "1", 0, "L", fillColor, 0, "")
+			pdf.CellFormat(colWidths[3], 7, billNumber, "1", 0, "L", fillColor, 0, "")
+			pdf.CellFormat(colWidths[4], 7, productID, "1", 0, "L", fillColor, 0, "")
+			pdf.CellFormat(colWidths[5], 7, fmt.Sprintf("%.2f", prod.Amount), "1", 0, "R", fillColor, 0, "")
+			pdf.CellFormat(colWidths[6], 7, reason, "1", 0, "L", fillColor, 0, "")
+			pdf.CellFormat(colWidths[7], 7, notes, "1", 0, "L", fillColor, 0, "")
 			pdf.Ln(7)
+			
+			fillColor = !fillColor
 		}
 	}
 
