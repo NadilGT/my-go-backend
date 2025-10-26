@@ -82,7 +82,7 @@ func generateExpiringStocksPDF(stocks []dao.ProductWithStockInfo, reportDate tim
 		pdf.SetFont("Arial", "B", 10)
 		pdf.SetFillColor(52, 73, 94)
 		pdf.SetTextColor(255, 255, 255)
-		colWidths := []float64{25, 60, 30, 25, 30, 30}
+		colWidths := []float64{23, 50, 28, 18, 28, 23}
 		headers := []string{"Product ID", "Product Name", "Batch ID", "Qty", "Expiry Date", "Status"}
 		for i, h := range headers {
 			pdf.CellFormat(colWidths[i], 8, h, "1", 0, "C", true, 0, "")
@@ -126,6 +126,8 @@ func generateExpiringStocksPDF(stocks []dao.ProductWithStockInfo, reportDate tim
 				align := "L"
 				if i == 3 { // Qty right align
 					align = "R"
+				} else if i == 4 || i == 5 { // Expiry Date and Status center align
+					align = "C"
 				}
 				pdf.CellFormat(colWidths[i], 7, data, "1", 0, align, true, 0, "")
 			}
