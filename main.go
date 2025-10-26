@@ -2,6 +2,7 @@ package main
 
 import (
 	"employee-crud/apiHandlers"
+	"employee-crud/dao"
 	"employee-crud/dbConfigs"
 	"employee-crud/utils"
 	"os"
@@ -38,6 +39,7 @@ func main() {
 	}))
 
 	dbConfigs.ConnectMongoDB()
+	dao.InitReturnsCollection(dbConfigs.DATABASE)
 
 	// Setup TTL index for Sales collection (auto-delete after 24 hours)
 	if err := dbConfigs.SetupSalesTTL(); err != nil {

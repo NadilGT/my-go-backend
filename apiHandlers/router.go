@@ -99,4 +99,8 @@ func SetupRoutes(app *fiber.App) {
 	app.Put("/RemoveStock", api.RemoveStockFromBatch)  // Remove/reduce stock from a specific batch
 	app.Delete("/DeleteBatch", api.DeleteBatch)        // Delete a batch completely
 
+	// Return APIs
+	app.Post("/returns", api.CreateReturnApi)
+	app.Get("/returns", api.FindAllReturnsApi)
+	app.Get("/returns/:id", api.FindReturnByIdApi)
 }
