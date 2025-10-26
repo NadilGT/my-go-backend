@@ -7,6 +7,8 @@ import (
 )
 
 func SetupRoutes(app *fiber.App) {
+	// Returns Monthly PDF Report
+	app.Get("/GetMonthlyReturnsPDF", api.GetMonthlyReturnsReportPDF)
 	// Expiring Stocks Report Route
 	app.Get("/GetExpiringStocksReportPDF", api.GetExpiringStocksReportPDF)
 
