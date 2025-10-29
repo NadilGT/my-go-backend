@@ -17,7 +17,10 @@ func DB_GetTopLowStockProducts(limit int) ([]dto.Product, error) {
 	filter := bson.M{"deleted": false, "stockQty": bson.M{"$lt": 10}}
 	findOptions := options.Find()
 	findOptions.SetLimit(int64(limit))
-	findOptions.SetSort(bson.D{{Key: "stockQty", Value: 1}}) // Ascending order
+	findOptions.SetSort(bson.D{
+		{Key: "stockQty", Value: 1},
+		{Key: "expiry_date", Value: 1}, // Nearest expiry first
+	})
 
 	cursor, err := collection.Find(ctx, filter, findOptions)
 	if err != nil {
