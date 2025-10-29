@@ -11,6 +11,8 @@ func SetupRoutes(app *fiber.App) {
 	app.Get("/GetMonthlyReturnsPDF", api.GetMonthlyReturnsReportPDF)
 	// Expiring Stocks Report Route
 	app.Get("/GetExpiringStocksReportPDF", api.GetExpiringStocksReportPDF)
+	// Top 10 Expiring Stocks in 7 Days (JSON)
+	app.Get("/GetExpiringStocksNext7Days", api.GetExpiringStocksNext7Days)
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello from Fiber on Render!")
