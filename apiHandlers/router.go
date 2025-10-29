@@ -11,6 +11,8 @@ func SetupRoutes(app *fiber.App) {
 	app.Get("/GetMonthlyReturnsPDF", api.GetMonthlyReturnsReportPDF)
 	// Expiring Stocks Report Route
 	app.Get("/GetExpiringStocksReportPDF", api.GetExpiringStocksReportPDF)
+	// Top 10 Expiring Stocks in 7 Days (JSON)
+	app.Get("/GetExpiringStocksNext7Days", api.GetExpiringStocksNext7Days)
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello from Fiber on Render!")
@@ -89,6 +91,9 @@ func SetupRoutes(app *fiber.App) {
 	app.Get("/FindAllStocksFilteredLite", api.FindAllStocksFilteredLightweightApi) // Get filtered stocks by status with pagination (lightweight)
 	app.Get("/GetTotalStockQuantity", api.GetTotalStockQuantityApi)                // Get sum of all stockQty (total quantity in inventory)
 	app.Get("/GetStockStatusCounts", api.GetStockStatusCountsApi)                  // Get count of stocks by status (Low/Average/Good)
+
+	// Low Stock Products API
+	app.Get("/GetLowStockProducts", api.GetLowStockProductsHandler) // Get top 10 lowest stock products
 
 	// Stock Maintenance Routes
 	app.Delete("/CleanupOrphanedStocks", api.CleanupOrphanedStocksApi) // Remove stock entries with null/empty batchId
