@@ -59,6 +59,9 @@ func SetupRoutes(app *fiber.App) {
 	app.Get("/GetCompletedGRNsCount", api.GetCompletedGRNsCount)
 	app.Get("/GetPendingGRNsCount", api.GetPendingGRNsCount)
 	app.Get("/GetPartialReceivedGRNsCount", api.GetPartialReceivedGRNsCount)
+
+	// Total Products Count API
+	app.Get("/GetTotalProducts", api.GetTotalProducts)
 	app.Put("/UpdateGRNStatus", api.UpdateGRNStatusApi)
 	app.Get("/FindAllProductsBySubCategory", api.GetAllProductsBySubCategoryApi)
 	app.Put("/UpdateSupplier", api.UpdateSupplierApi)
