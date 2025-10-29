@@ -90,6 +90,9 @@ func SetupRoutes(app *fiber.App) {
 	app.Get("/GetTotalStockQuantity", api.GetTotalStockQuantityApi)                // Get sum of all stockQty (total quantity in inventory)
 	app.Get("/GetStockStatusCounts", api.GetStockStatusCountsApi)                  // Get count of stocks by status (Low/Average/Good)
 
+	// Low Stock Products API
+	app.Get("/GetLowStockProducts", api.GetLowStockProductsHandler) // Get top 10 lowest stock products
+
 	// Stock Maintenance Routes
 	app.Delete("/CleanupOrphanedStocks", api.CleanupOrphanedStocksApi) // Remove stock entries with null/empty batchId
 	app.Get("/ValidateStockIntegrity", api.ValidateStockIntegrityApi)  // Check for stock data inconsistencies
