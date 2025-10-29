@@ -50,5 +50,6 @@ func SetupRoutes(app *fiber.App) {
 	app.Put("/UpdateBrand", api.UpdateBrandApi)
 	app.Get("/CalculateBrandCostSummary", api.GetBrandCostSummaryApi)
 	app.Delete("/DeleteProductPermanent", api.DeleteProductPermanentApi)
+	app.Get("/FindAllProdcustBarcode", api.GetProductsByBarcodeApi)
 
 }
