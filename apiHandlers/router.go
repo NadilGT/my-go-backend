@@ -42,6 +42,9 @@ func SetupRoutes(app *fiber.App) {
 
 	// Update supplier status (active/inactive)
 	app.Put("/UpdateSupplierStatus", api.UpdateSupplierStatus)
+
+	// Get total number of active and inactive suppliers
+	app.Get("/GetSupplierStatusCounts", api.GetSupplierStatusCounts)
 	app.Get("/FindProductsByCategoryId", api.GetProductsByCategoryApi)
 	app.Get("/FindProductsByBrandId", api.GetProductsByBrandApi)
 	app.Get("/FindProductsBySearch", api.FindAllProductsSearch)

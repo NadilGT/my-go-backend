@@ -8,11 +8,14 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func DB_FindAllSuppliers() ([]dto.Supplier, error) {
+func DB_FindAllSuppliers(status string) ([]dto.Supplier, error) {
 	collection := dbConfigs.DATABASE.Collection("Suppliers")
 	ctx := context.Background()
 
 	filter := bson.M{"deleted": false}
+	if status == "active" || status == "inactive" {
+		filter["status"] = status
+	}
 
 	cursor, err := collection.Find(ctx, filter)
 	if err != nil {
