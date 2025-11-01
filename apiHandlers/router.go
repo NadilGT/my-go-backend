@@ -39,6 +39,9 @@ func SetupRoutes(app *fiber.App) {
 	app.Delete("/DeleteSupplierById", api.DeleteSupplierApi)
 	app.Post("/AssignProductToSupplier", api.AssignProductToSupplierApi)
 	app.Get("/FindProductsBySupplierID", api.GetProductsBySupplierApi)
+
+	// Update supplier status (active/inactive)
+	app.Put("/UpdateSupplierStatus", api.UpdateSupplierStatus)
 	app.Get("/FindProductsByCategoryId", api.GetProductsByCategoryApi)
 	app.Get("/FindProductsByBrandId", api.GetProductsByBrandApi)
 	app.Get("/FindProductsBySearch", api.FindAllProductsSearch)
