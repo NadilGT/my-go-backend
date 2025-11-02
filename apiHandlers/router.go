@@ -25,6 +25,12 @@ func SetupRoutes(app *fiber.App) {
 	app.Post("/CreateCategory", api.CreateCategoryApi)
 	app.Get("/FindAllCategory", api.FindAllCategoriesApi)
 	app.Delete("/DeleteCategory", api.DeleteCategoryApi)
+
+	// Category Enhancement Routes
+	app.Get("/api/products/count", api.GetCategorizedProductsCountApi)                       // Get total categorized products count
+	app.Get("/api/categories/:categoryId/products/count", api.GetProductsCountByCategoryApi) // Get product count by category
+	app.Get("/api/categories/search", api.SearchCategoriesApi)                               // Search categories
+
 	app.Post("/CreateBrands", api.CreateBrand)
 	app.Get("/FindAllBrands", api.FindAllBrands)
 	app.Delete("/DeleteBrand", api.DeleteBrandApi)

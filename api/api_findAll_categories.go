@@ -42,6 +42,26 @@ func FindAllCategoriesApi(c *fiber.Ctx) error {
 		})
 	}
 
+	// Get product counts for all categories in this page
+	categoryIds := make([]string, len(categories))
+	for i, cat := range categories {
+		categoryIds[i] = cat.CategoryId
+	}
+
+	if len(categoryIds) > 0 {
+		productCounts, err := dao.DB_GetProductCountsForCategories(categoryIds)
+		if err != nil {
+			// Log error but continue without product counts
+			// You can add proper logging here if needed
+			productCounts = make(map[string]int64)
+		}
+
+		// Add product counts to categories
+		for i := range categories {
+			categories[i].ProductCount = productCounts[categories[i].CategoryId]
+		}
+	}
+
 	// Calculate total pages
 	totalPages := int(math.Ceil(float64(total) / float64(perPage)))
 
