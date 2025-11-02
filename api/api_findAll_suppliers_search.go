@@ -11,7 +11,7 @@ import (
 func FindAllSuppliersSearch(c *fiber.Ctx) error {
 	search := c.Query("search")
 
-	brands, err := dao.DB_FindAllSuppliers()
+	brands, err := dao.DB_FindAllSuppliers("")
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),

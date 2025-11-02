@@ -7,12 +7,12 @@ import (
 )
 
 func FindAllSuppliers(c *fiber.Ctx) error {
-	brands, err := dao.DB_FindAllSuppliers()
+	status := c.Query("status")
+	suppliers, err := dao.DB_FindAllSuppliers(status)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}
-
-	return c.Status(fiber.StatusOK).JSON(brands)
+	return c.Status(fiber.StatusOK).JSON(suppliers)
 }

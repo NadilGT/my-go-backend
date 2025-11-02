@@ -28,6 +28,9 @@ func CreateSupplier(c *fiber.Ctx) error {
 	inputObj.CreatedAt = now
 	inputObj.UpdatedAt = now
 
+	// Set status to active by default
+	inputObj.Status = "active"
+
 	if err := functions.UniqueCheck(inputObj, "Suppliers", []string{"SupplierId"}); err != nil {
 		return utils.SendErrorResponse(c, fiber.StatusBadRequest, err.Error())
 	}
