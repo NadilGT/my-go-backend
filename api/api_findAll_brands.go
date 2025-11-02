@@ -42,6 +42,25 @@ func FindAllBrands(c *fiber.Ctx) error {
 		})
 	}
 
+	// Get product counts for all brands in this page
+	brandIds := make([]string, len(brands))
+	for i, brand := range brands {
+		brandIds[i] = brand.BrandId
+	}
+
+	if len(brandIds) > 0 {
+		productCounts, err := dao.DB_GetProductCountsForBrands(brandIds)
+		if err != nil {
+			// Log error but continue without product counts
+			productCounts = make(map[string]int64)
+		}
+
+		// Add product counts to brands
+		for i := range brands {
+			brands[i].ProductCount = productCounts[brands[i].BrandId]
+		}
+	}
+
 	// Calculate total pages
 	totalPages := int(math.Ceil(float64(total) / float64(perPage)))
 
