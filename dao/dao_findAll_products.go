@@ -70,11 +70,13 @@ func DB_FindAllProductsPaginated(page, limit int) ([]dto.Product, int64, error) 
 }
 
 // Cursor-based pagination for maximum performance with large datasets
+// Enhanced with $lookup to include category and brand names
 func DB_FindAllProductsCursorPaginated(limit int, cursor string) ([]dto.Product, string, bool, error) {
 	collection := dbConfigs.DATABASE.Collection("Products")
 	ctx := context.Background()
 
-	filter := bson.M{"deleted": false}
+	// Build match filter
+	matchFilter := bson.M{"deleted": false}
 
 	// If cursor is provided, add it to filter for cursor-based pagination
 	if cursor != "" {
@@ -88,15 +90,68 @@ func DB_FindAllProductsCursorPaginated(limit int, cursor string) ([]dto.Product,
 				return nil, "", false, err
 			}
 		}
-		filter["created_at"] = bson.M{"$lt": cursorTime}
+		matchFilter["created_at"] = bson.M{"$lt": cursorTime}
 	}
 
-	// Set up find options
-	findOptions := options.Find()
-	findOptions.SetLimit(int64(limit))
-	findOptions.SetSort(bson.D{{Key: "created_at", Value: -1}})
+	// Build aggregation pipeline with $lookup for category and brand names
+	pipeline := []bson.M{
+		// Match non-deleted products with cursor filter
+		{"$match": matchFilter},
+		// Sort by created_at descending
+		{"$sort": bson.D{{Key: "created_at", Value: -1}}},
+		// Limit results
+		{"$limit": int64(limit)},
+		// Lookup category name
+		{
+			"$lookup": bson.M{
+				"from":         "Categories",
+				"localField":   "categoryId",
+				"foreignField": "categoryId",
+				"as":           "categoryInfo",
+			},
+		},
+		// Lookup brand name
+		{
+			"$lookup": bson.M{
+				"from":         "Brands",
+				"localField":   "brandId",
+				"foreignField": "brandId",
+				"as":           "brandInfo",
+			},
+		},
+		// Add category and brand names to the product document
+		{
+			"$addFields": bson.M{
+				"categoryName": bson.M{
+					"$cond": bson.M{
+						"if": bson.M{"$gt": []interface{}{bson.M{"$size": "$categoryInfo"}, 0}},
+						"then": bson.M{
+							"$arrayElemAt": []interface{}{"$categoryInfo.name", 0},
+						},
+						"else": "Uncategorized",
+					},
+				},
+				"brandName": bson.M{
+					"$cond": bson.M{
+						"if": bson.M{"$gt": []interface{}{bson.M{"$size": "$brandInfo"}, 0}},
+						"then": bson.M{
+							"$arrayElemAt": []interface{}{"$brandInfo.name", 0},
+						},
+						"else": "Unknown Brand",
+					},
+				},
+			},
+		},
+		// Remove the temporary lookup arrays
+		{
+			"$project": bson.M{
+				"categoryInfo": 0,
+				"brandInfo":    0,
+			},
+		},
+	}
 
-	cursor_result, err := collection.Find(ctx, filter, findOptions)
+	cursor_result, err := collection.Aggregate(ctx, pipeline)
 	if err != nil {
 		return nil, "", false, err
 	}
